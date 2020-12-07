@@ -1,0 +1,34 @@
+{
+    "name": "bit/error",
+    "description": "Bethlehem IT error notifier",
+    "type": "shopware-platform-plugin",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "BethlehemIT\\Error\\": "src/"
+        }
+    },
+    "require": {
+        "shopware/core": "~6.3",
+        "guzzlehttp/guzzle": "^6.0|^7.0",
+        "ext-json": "*"
+    },
+    "extra": {
+        "shopware-plugin-class": "BethlehemIT\\Error\\Error",
+        "copyright": "Bethlehem IT",
+        "label": {
+            "en-GB": "Critical to Slack"
+        },
+        "description": {
+            "en-GB": "Send criticals to your slack"
+        },
+        "manufacturerLink": {
+            "en-GB": "https://bethlehemit.nl"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ronald Bethlehem"
+        }
+    ]
+}
