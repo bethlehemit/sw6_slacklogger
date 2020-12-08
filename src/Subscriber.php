@@ -26,14 +26,16 @@ class Subscriber implements EventSubscriberInterface
     /**
      * Subscriber constructor.
      * @param LoggerInterface $logger
+     * @param Client $client
      * @param SystemConfigService $config
      */
     public function __construct(
         LoggerInterface $logger,
+        Client $client,
         SystemConfigService $config
     ) {
         $this->logger = $logger;
-        $this->client = new Client();
+        $this->client = $client;
         $this->config = $config;
     }
 
