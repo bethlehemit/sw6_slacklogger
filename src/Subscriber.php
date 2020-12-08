@@ -80,7 +80,7 @@ class Subscriber implements EventSubscriberInterface
                 $this->getWebhookURL(),
                 [
                     'body' => json_encode([
-                        "text" => $this->getMentions() . "\n$message"
+                        "text" => $this->getMentions() . $message
                     ]),
                     'headers' => [
                         'Content-Type' => 'application/json',
@@ -118,6 +118,11 @@ class Subscriber implements EventSubscriberInterface
             $key = trim($key);
             $result .= " <$key>";
         }
+
+        if(strlen($result)) {
+            $result .= "\n";
+        }
+
         return $result;
     }
 
