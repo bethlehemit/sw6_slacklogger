@@ -63,10 +63,12 @@ class Subscriber implements EventSubscriberInterface
         }
 
         $exception = $event->getThrowable();
-        if (!$exception instanceof HttpExceptionInterface || $exception->getStatusCode() >= 500) {
+        if (!$exception instanceof HttpExceptionInterface
+            || $exception->getStatusCode() >= 500
+            || $this->shouldLogErrors($exception)) {
             $e = FlattenException::createFromThrowable($exception);
             $this->sendException(
-                sprintf('Uncaught PHP Exception %s: "%s" at %s line %s', $e->getClass(), $e->getMessage(), $e->getFile(), $e->getLine()));
+                sprintf('Uncaught PHP Exception %s\n "%s" at %s line %s', $e->getClass(), $e->getMessage(), $e->getFile(), $e->getLine()));
         }
     }
 
@@ -105,6 +107,24 @@ class Subscriber implements EventSubscriberInterface
      */
     private function isEnabled(): bool {
         return $this->config->getBool("Error.config.enabled") && !empty($this->getWebhookURL());
+    }
+
+    /**
+     * @param \Throwable $exception
+     * @return bool
+     */
+    private function shouldLogErrors(\Throwable $exception): bool {
+        if($this->config->getBool("Error.config.errorsenabled")) {
+            $classes = $this->config->getString("Error.config.ignorederrors");
+            foreach(explode("\n", $classes) as $class) {
+                $class = trim($class);
+                if ($exception instanceof $class) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     /**

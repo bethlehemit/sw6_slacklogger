@@ -3,7 +3,7 @@
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
 
     <card>
-        <title>Critical errors to Slack</title>
+        <title>Criticals and Errors to Slack</title>
         <input-field type="bool">
             <name>enabled</name>
             <label>Enabled</label>
@@ -17,6 +17,17 @@
             <name>mentions</name>
             <label>Mentions</label>
             <helpText>You can specify multiple mentions separated by semicolon (;). Please use @USERID or !here</helpText>
+        </input-field>
+        <input-field type="bool">
+            <name>errorsenabled</name>
+            <label>Log errors too</label>
+            <helpText>Can be unselected to hide errors from the Slack feed</helpText>
+            <default>true</default>
+        </input-field>
+        <input-field type="textarea">
+            <name>ignorederrors</name>
+            <label>Ignored error classes</label>
+            <helpText>You can list the Error Classes to ignore in this field, one per line. We use instanceof logic, so interitance works</helpText>
         </input-field>
     </card>
 </config>

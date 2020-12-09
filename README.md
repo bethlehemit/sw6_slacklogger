@@ -1,4 +1,4 @@
-Send critical errors to Slack, instead of just to the logs
+Send critical errors and regular errors to Slack, instead of just to the logs
 
 Uses Slack webhooks
 

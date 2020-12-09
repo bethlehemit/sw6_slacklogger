@@ -17,10 +17,10 @@
         "shopware-plugin-class": "BethlehemIT\\Error\\Error",
         "copyright": "Bethlehem IT",
         "label": {
-            "en-GB": "Critical to Slack"
+            "en-GB": "Criticals and Errors to Slack"
         },
         "description": {
-            "en-GB": "Send criticals to your slack"
+            "en-GB": "Send criticals and errors to your slack"
         },
         "manufacturerLink": {
             "en-GB": "https://bethlehemit.nl"
