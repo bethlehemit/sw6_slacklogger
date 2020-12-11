@@ -68,7 +68,8 @@ class Subscriber implements EventSubscriberInterface
             || $this->shouldLogErrors($exception)) {
             $e = FlattenException::createFromThrowable($exception);
             $this->sendException(
-                sprintf("Uncaught PHP Exception %s\n \"%s\" at %s line %s", $e->getClass(), $e->getMessage(), $e->getFile(), $e->getLine()));
+                sprintf("%s request to %s threw\n", $event->getRequest()->getMethod(), $event->getRequest()->getUri()) .
+                sprintf("%s\n \"%s\" at %s line %s", $e->getClass(), $e->getMessage(), $e->getFile(), $e->getLine()));
         }
     }
 
