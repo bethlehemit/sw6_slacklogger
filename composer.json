@@ -1,11 +1,11 @@
 {
-    "name": "bit/error",
+    "name": "bit/slacklogger",
     "description": "Bethlehem IT error notifier",
     "type": "shopware-platform-plugin",
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "BethlehemIT\\Error\\": "src/"
+            "BethlehemIT\\SlackLogger\\": "src/"
         }
     },
     "require": {
@@ -14,7 +14,7 @@
         "ext-json": "*"
     },
     "extra": {
-        "shopware-plugin-class": "BethlehemIT\\Error\\Error",
+        "shopware-plugin-class": "BethlehemIT\\SlackLogger\\SlackLogger",
         "copyright": "Bethlehem IT",
         "label": {
             "en-GB": "Criticals and Errors to Slack"

@@ -6,13 +6,13 @@
 
     <services>
         <!-- Claim our own service, for Guzzle is a dependency, and does not expose a service -->
-        <service id="BethlehemIT\Error\Client" class="GuzzleHttp\Client" />
+        <service id="BethlehemIT\SlackLogger\Client" class="GuzzleHttp\Client" />
 
-        <service id="BethlehemIT\Error\Subscriber">
+        <service id="BethlehemIT\SlackLogger\Subscriber">
             <tag name="kernel.event_subscriber"/>
 
             <argument type="service" id="logger" on-invalid="null" />
-            <argument type="service" id="BethlehemIT\Error\Client"/>
+            <argument type="service" id="BethlehemIT\SlackLogger\Client"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
     </services>

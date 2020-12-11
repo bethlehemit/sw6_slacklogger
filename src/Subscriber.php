@@ -1,6 +1,6 @@
 <?php
 
-namespace BethlehemIT\Error;
+namespace BethlehemIT\SlackLogger;
 
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Log\LoggerInterface;
@@ -107,7 +107,7 @@ class Subscriber implements EventSubscriberInterface
      * @return bool
      */
     private function isEnabled(): bool {
-        return $this->config->getBool("Error.config.enabled") && !empty($this->getWebhookURL());
+        return $this->config->getBool("Slacklogger.config.enabled") && !empty($this->getWebhookURL());
     }
 
     /**
@@ -115,8 +115,8 @@ class Subscriber implements EventSubscriberInterface
      * @return bool
      */
     private function shouldLogErrors(\Throwable $exception): bool {
-        if($this->config->getBool("Error.config.errorsenabled")) {
-            $classes = $this->config->getString("Error.config.ignorederrors");
+        if($this->config->getBool("Slacklogger.config.errorsenabled")) {
+            $classes = $this->config->getString("Slacklogger.config.ignorederrors");
             foreach(explode("\n", $classes) as $class) {
                 $class = trim($class);
                 if ($exception instanceof $class) {
@@ -133,7 +133,7 @@ class Subscriber implements EventSubscriberInterface
      */
     private function getMentions(): string
     {
-        $mentions = $this->config->getString("Error.config.mentions");
+        $mentions = $this->config->getString("Slacklogger.config.mentions");
         $result = "";
         foreach(explode(";", $mentions) as $key) {
             $key = trim($key);
@@ -152,6 +152,6 @@ class Subscriber implements EventSubscriberInterface
      */
     private function getWebhookURL(): string
     {
-        return $this->config->getString("Error.config.webhookurl");
+        return $this->config->getString("Slacklogger.config.webhookurl");
     }
 }

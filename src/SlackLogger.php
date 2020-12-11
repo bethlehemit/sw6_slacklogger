@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace BethlehemIT\Error;
+namespace BethlehemIT\SlackLogger;
 
 use Shopware\Core\Framework\Plugin;
 
-class Error extends Plugin
+class SlackLogger extends Plugin
 {
 }
