@@ -64,14 +64,25 @@ class Subscriber implements EventSubscriberInterface
         }
 
         $exception = $event->getThrowable();
+        $userAgent = $event->getRequest()->server->get("HTTP_USER_AGENT");
+        $referer = $event->getRequest()->server->get("HTTP_REFERER");
+
         if (!$exception instanceof HttpExceptionInterface
             || $exception->getStatusCode() >= 500
-            || $this->shouldLogErrors($exception, $event->getRequest())) {
-            if (!$this->isIgnoredBot($event->getRequest()->server->get("HTTP_USER_AGENT"))) {
+            || $this->shouldLogErrors($exception, $referer)) {
+            if (!$this->isIgnoredBot($userAgent)) {
                 $e = FlattenException::createFromThrowable($exception);
-                $this->sendException(
-                    sprintf("%s request to %s threw\n", $event->getRequest()->getMethod(), $event->getRequest()->getUri()) .
-                    sprintf("%s\n \"%s\" at %s line %s", $e->getClass(), $e->getMessage(), $e->getFile(), $e->getLine()));
+
+                $message = sprintf("%s request to %s\n", $event->getRequest()->getMethod(), $event->getRequest()->getUri());
+                if(is_string($userAgent) && !empty($userAgent)) {
+                    $message .= "\twith user agent: $userAgent\n";
+                }
+                if(is_string($referer) && !empty($referer)) {
+                    $message .= "\twith referer: $referer\n";
+                }
+                $message .= "\tthrew\n\n" . sprintf("%s\n\n\"%s\" at %s line %s", $e->getClass(), $e->getMessage(), $e->getFile(), $e->getLine());
+
+                $this->sendException($message);
             }
         }
     }
@@ -136,10 +147,10 @@ class Subscriber implements EventSubscriberInterface
 
     /**
      * @param \Throwable $exception
-     * @param Request $request
+     * @param $referer
      * @return bool
      */
-    private function shouldLogErrors(\Throwable $exception, Request $request): bool {
+    private function shouldLogErrors(\Throwable $exception, $referer): bool {
         if($this->config->getBool("SlackLogger.config.errorsenabled")) {
             $classes = $this->config->getString("SlackLogger.config.ignorederrors");
             foreach(explode("\n", $classes) as $class) {
@@ -149,7 +160,7 @@ class Subscriber implements EventSubscriberInterface
                 }
             }
 
-            if (empty($request->server->get("HTTP_REFERER"))) {
+            if (empty($referer)) {
                 $classes = $this->config->getString("SlackLogger.config.ignoredreferererrors");
                 foreach (explode("\n", $classes) as $class) {
                     $class = trim($class);
