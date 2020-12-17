@@ -118,7 +118,9 @@ class Subscriber implements EventSubscriberInterface
                 $this->getWebhookURL(),
                 [
                     'body' => json_encode([
-                        "text" => $this->getMentions() . $message
+                        "text" => $this->getMentions() . $message,
+                        "unfurl_links" => false,
+                        "unfurl_media" => false
                     ]),
                     'headers' => [
                         'Content-Type' => 'application/json',
