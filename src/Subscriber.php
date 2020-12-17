@@ -7,6 +7,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\ErrorHandler\Exception\FlattenException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -65,12 +66,35 @@ class Subscriber implements EventSubscriberInterface
         $exception = $event->getThrowable();
         if (!$exception instanceof HttpExceptionInterface
             || $exception->getStatusCode() >= 500
-            || $this->shouldLogErrors($exception)) {
-            $e = FlattenException::createFromThrowable($exception);
-            $this->sendException(
-                sprintf("%s request to %s threw\n", $event->getRequest()->getMethod(), $event->getRequest()->getUri()) .
-                sprintf("%s\n \"%s\" at %s line %s", $e->getClass(), $e->getMessage(), $e->getFile(), $e->getLine()));
+            || $this->shouldLogErrors($exception, $event->getRequest())) {
+            if (!$this->isIgnoredBot($event->getRequest()->server->get("HTTP_USER_AGENT"))) {
+                $e = FlattenException::createFromThrowable($exception);
+                $this->sendException(
+                    sprintf("%s request to %s threw\n", $event->getRequest()->getMethod(), $event->getRequest()->getUri()) .
+                    sprintf("%s\n \"%s\" at %s line %s", $e->getClass(), $e->getMessage(), $e->getFile(), $e->getLine()));
+            }
         }
+    }
+
+    /**
+     * @param $userAgent
+     * @return bool
+     */
+    public function isIgnoredBot($userAgent): bool
+    {
+        if (!is_string($userAgent)) {
+            return false;
+        }
+
+        if ($this->config->getBool("SlackLogger.config.ignorebots")) {
+            $regexes = $this->config->getString("SlackLogger.config.ignoredbots");
+            foreach(explode("\n", $regexes) as $regex) {
+                if (preg_match("/$regex/i", $userAgent)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -112,9 +136,10 @@ class Subscriber implements EventSubscriberInterface
 
     /**
      * @param \Throwable $exception
+     * @param Request $request
      * @return bool
      */
-    private function shouldLogErrors(\Throwable $exception): bool {
+    private function shouldLogErrors(\Throwable $exception, Request $request): bool {
         if($this->config->getBool("SlackLogger.config.errorsenabled")) {
             $classes = $this->config->getString("SlackLogger.config.ignorederrors");
             foreach(explode("\n", $classes) as $class) {
@@ -123,6 +148,17 @@ class Subscriber implements EventSubscriberInterface
                     return false;
                 }
             }
+
+            if (empty($request->server->get("HTTP_REFERER"))) {
+                $classes = $this->config->getString("SlackLogger.config.ignoredreferererrors");
+                foreach (explode("\n", $classes) as $class) {
+                    $class = trim($class);
+                    if ($exception instanceof $class) {
+                        return false;
+                    }
+                }
+            }
+
             return true;
         }
         return false;
