@@ -100,6 +100,8 @@ class Subscriber implements EventSubscriberInterface
         if ($this->config->getBool("SlackLogger.config.ignorebots")) {
             $regexes = $this->config->getString("SlackLogger.config.ignoredbots");
             foreach(explode("\n", $regexes) as $regex) {
+                $regex = trim($regex);
+                if (empty($regex)) {continue;}
                 if (preg_match("/$regex/i", $userAgent)) {
                     return true;
                 }
