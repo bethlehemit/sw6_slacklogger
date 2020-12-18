@@ -34,6 +34,11 @@
             <label>Ignored error classes where referer is empty</label>
             <helpText>You can list the Error Classes to ignore in this field, one per line. We use instanceof logic, so interitance works. These errors are ignored when the referer is empty. For example, you can still detect invalid URLs coming in, but ignore when users/bots opened them directly</helpText>
         </input-field>
+        <input-field type="textarea">
+            <name>ignoredreferers</name>
+            <label>Ignored referer regexes</label>
+            <helpText>Please put one regex per line, referers matching regex will be ignored. Regexes are treated case insensitive</helpText>
+        </input-field>
         <input-field type="bool">
             <name>ignorebots</name>
             <label>Ignore bots matching regexes below</label>

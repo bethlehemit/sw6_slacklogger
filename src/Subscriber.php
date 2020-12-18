@@ -172,6 +172,15 @@ class Subscriber implements EventSubscriberInterface
                         return false;
                     }
                 }
+            } else {
+                $regexes = $this->config->getString("SlackLogger.config.ignoredreferers");
+                foreach(explode("\n", $regexes) as $regex) {
+                    $regex = trim($regex);
+                    if (empty($regex)) {continue;}
+                    if (preg_match("/$regex/i", $referer)) {
+                        return false;
+                    }
+                }
             }
 
             return true;
