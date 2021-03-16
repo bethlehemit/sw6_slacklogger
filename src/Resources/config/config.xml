@@ -8,7 +8,8 @@
             <name>enabled</name>
             <label>Enabled</label>
             <default>false</default>
-        </input-field><input-field type="bool">
+        </input-field>
+        <input-field type="bool">
             <name>ignoredev</name>
             <label>Do not trigger if the environment is not running in production mode</label>
             <default>true</default>
