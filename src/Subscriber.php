@@ -146,7 +146,9 @@ class Subscriber implements EventSubscriberInterface
      * @return bool
      */
     private function isEnabled(): bool {
-        return $this->config->getBool("SlackLogger.config.enabled") && !empty($this->getWebhookURL());
+        return $this->config->getBool("SlackLogger.config.enabled")
+            && !empty($this->getWebhookURL()
+            && (!$this->config->getBool("SlackLogger.config.ignoredev") || getenv("APP_ENV") === "prod"));
     }
 
     /**
