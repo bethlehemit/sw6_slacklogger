@@ -10,7 +10,6 @@
     },
     "require": {
         "shopware/core": "~6.3",
-        "guzzlehttp/guzzle": "^6.0|^7.0",
         "ext-json": "*"
     },
     "extra": {
