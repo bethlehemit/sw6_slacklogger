@@ -53,5 +53,10 @@
             <label>Ignored bot regexes</label>
             <helpText>Please put one regex per line, bots matching regex will be ignored. Regexes are treated case insensitive</helpText>
         </input-field>
+        <input-field type="bool">
+            <name>sendtrace</name>
+            <label>Append strack trace to error message</label>
+            <default>true</default>
+        </input-field>
     </card>
 </config>

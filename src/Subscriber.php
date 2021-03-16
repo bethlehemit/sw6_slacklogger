@@ -24,20 +24,26 @@ class Subscriber implements EventSubscriberInterface
     /** @var SystemConfigService */
     private $config;
 
+    /** @var string */
+    private $root;
+
     /**
      * Subscriber constructor.
      * @param LoggerInterface $logger
      * @param Client $client
      * @param SystemConfigService $config
+     * @param string $rootDir
      */
     public function __construct(
         LoggerInterface $logger,
         Client $client,
-        SystemConfigService $config
+        SystemConfigService $config,
+        string $rootDir
     ) {
         $this->logger = $logger;
         $this->client = $client;
         $this->config = $config;
+        $this->root = $rootDir;
     }
 
     /**
@@ -82,7 +88,7 @@ class Subscriber implements EventSubscriberInterface
                 }
                 $message .= "\tthrew\n\n" . sprintf("%s\n\n\"%s\" at %s line %s", $e->getClass(), $e->getMessage(), $e->getFile(), $e->getLine());
 
-                $this->sendException($message);
+                $this->sendException($message, $this->getTrace($exception));
             }
         }
     }
@@ -110,26 +116,48 @@ class Subscriber implements EventSubscriberInterface
         return false;
     }
 
+    public function getTrace(\Throwable $throwable): string
+    {
+        $result = "";
+        foreach ($throwable->getTrace() as $line)
+        {
+            $result .= "*" . str_replace($this->root . "/", "", $line["file"])
+                . ":" . $line["line"] . "*"
+                . "   " . $line["class"] . ":" . $line["function"] . PHP_EOL;
+        }
+        return $result;
+    }
+
     /**
      * @param string $message
      */
-    public function sendException(string $message): void
+    public function sendException(string $message, string $trace): void
     {
+        $content = [
+            "body" => json_encode([
+                "text" => substr($this->getMentions() . $message, 0, 3000), #Hard limit by Slack
+                "unfurl_links" => false,
+                "unfurl_media" => false
+            ]),
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+            'connect_timeout' => 15,
+            'timeout' => 15
+        ];
+
+        if ($this->config->getBool("SlackLogger.config.sendtrace")) {
+            $content["body"] = json_encode([
+                "text" => substr($this->getMentions() . $message . PHP_EOL . PHP_EOL . $trace, 0, 3000), #Hard limit by Slack
+                "unfurl_links" => false,
+                "unfurl_media" => false
+            ]);
+        }
+
         try {
             $this->client->post(
                 $this->getWebhookURL(),
-                [
-                    'body' => json_encode([
-                        "text" => $this->getMentions() . $message,
-                        "unfurl_links" => false,
-                        "unfurl_media" => false
-                    ]),
-                    'headers' => [
-                        'Content-Type' => 'application/json',
-                    ],
-                    'connect_timeout' => 15,
-                    'timeout' => 15
-                ]
+                $content
             );
         } catch (\Exception $e) {
             if(!is_null($this->logger)) {
