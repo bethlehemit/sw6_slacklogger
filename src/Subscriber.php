@@ -74,9 +74,10 @@ class Subscriber implements EventSubscriberInterface
         $referer = $event->getRequest()->server->get("HTTP_REFERER");
 
         if (!$exception instanceof HttpExceptionInterface
-            || $exception->getStatusCode() >= 500
-            || $this->shouldLogErrors($exception, $referer)) {
-            if (!$this->isIgnoredBot($userAgent)) {
+            || $exception->getStatusCode() >= 500) {
+            if ($this->shouldLogErrors($exception, $referer)
+                && !$this->isIgnoredBot($userAgent))
+            {
                 $e = FlattenException::createFromThrowable($exception);
 
                 $message = sprintf("%s request to %s\n", $event->getRequest()->getMethod(), $event->getRequest()->getUri());
